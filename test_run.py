@@ -28,13 +28,13 @@ def run(fileName):
             print(f)
             os.remove(f)
 
-        new_json = []
-        for i in range(len(json_read)):
-            if json_read[i]["user_agent"] != "Swift":
-                new_json.append(json_read[i])
+        # new_json = []
+        # for i in range(len(json_read)):
+        #     if json_read[i]["user_agent"] != "Swift":
+        #         new_json.append(json_read[i])
 
         # make standard logs (for example p-get-a)
-        pure_logs, transaction_ids, datetime = LogsFunction().purifylogs(new_json)
+        pure_logs, transaction_ids, datetime = LogsFunction().purifylogs(json_read)
         # extract flows
         logs_flows, datetime, tx = LogsFunction().extractFlows(pure_logs, transaction_ids, datetime)
         # sort logs
@@ -63,7 +63,7 @@ def run(fileName):
 
             counter = np.zeros(len(sorted_priority) - 1)
             for k in range(len(sorted_priority) - 1):
-                for m in range(len(connections[f"{priority[k]}"])):
+                for m in range(connections.shape[1] - 1):
                     if str(connections[f"{m}"][priority[k]]) == 'nan':
                         continue
                     if int(connections[f"{m}"][priority[k]]) == int(priority[k + 1]):

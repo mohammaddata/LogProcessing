@@ -29,6 +29,10 @@ def run(fileName):
         f = open(fileName)
         json_read = json.load(f)
         print("start processing....")
+        # new_json = []
+        # for i in range(len(json_read)):
+        #     if json_read[i]["user_agent"] != "Swift":
+        #         new_json.append(json_read[i])
         # make standard logs (for example p-get-a)
         pure_logs, transaction_ids, datetime = LogsFunction().purifylogs(json_read)
         # extract flows
@@ -43,11 +47,21 @@ def run(fileName):
         df = pd.DataFrame(nodes)
         filename = 'nodes.csv'
         df.to_csv(filename)
+
         df = pd.DataFrame(connections)
         filename = 'connections.csv'
         df.to_csv(filename)
+
         df = pd.DataFrame(start)
         filename = 'start.csv'
+        df.to_csv(filename)
+
+        df = pd.DataFrame(end)
+        filename = 'end.csv'
+        df.to_csv(filename)
+
+        df = pd.DataFrame(flow_index)
+        filename = 'flow_index.csv'
         df.to_csv(filename)
 
         # draw graph
