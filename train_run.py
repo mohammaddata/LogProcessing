@@ -38,30 +38,30 @@ def run(fileName):
         # extract flows
         logs_flows, datetime, tx = LogsFunction().extractFlows(pure_logs, transaction_ids, datetime)
         # sort logs
-        sorted_log_flows = LogsFunction().sortlogs(logs_flows, datetime)
+        sorted_log_flows, _ = LogsFunction().sortlogs(logs_flows, datetime)
         clustered_sorted_log_flows, tx, anomalies = LogsFunction().clusterlogs(sorted_log_flows, tx)
         LogsFunction().generate_excel_exact_logs(json_read, tx)
         # extract nodes and connections for graph
         nodes, connections, flow_index, start, end = LogsFunction().extractconnections(clustered_sorted_log_flows)
         "save model"
         df = pd.DataFrame(nodes)
-        filename = 'nodes.csv'
+        filename = './model/graph_model/nodes.csv'
         df.to_csv(filename)
 
         df = pd.DataFrame(connections)
-        filename = 'connections.csv'
+        filename = './model/graph_model/connections.csv'
         df.to_csv(filename)
 
         df = pd.DataFrame(start)
-        filename = 'start.csv'
+        filename = './model/graph_model/start.csv'
         df.to_csv(filename)
 
         df = pd.DataFrame(end)
-        filename = 'end.csv'
+        filename = './model/graph_model/end.csv'
         df.to_csv(filename)
 
         df = pd.DataFrame(flow_index)
-        filename = 'flow_index.csv'
+        filename = './model/graph_model/flow_index.csv'
         df.to_csv(filename)
 
         # draw graph
