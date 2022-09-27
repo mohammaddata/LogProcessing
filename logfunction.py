@@ -165,6 +165,7 @@ class LogsFunction:
             :param logs_flows: flow of logs
             :return: logs_flows: sorted flows of logs
         """
+        temp_date_time_sorted = np.empty(len(logs_flows), dtype=object)
         for i in range(len(logs_flows)):
             temp_logs_flows = copy.deepcopy(logs_flows[i])
             temp_date_time = copy.deepcopy(datetime[i])
@@ -183,8 +184,9 @@ class LogsFunction:
             sorted_temp_logs_flows = np.array([x for y, x in sorted(zip(temp_date_time, temp_logs_flows))])
 
             logs_flows[i] = sorted_temp_logs_flows
+            temp_date_time_sorted[i] = sorted_temp_date_time
 
-        return logs_flows
+        return logs_flows, temp_date_time_sorted
 
     @staticmethod
     def extractconnections(logs_flows):
