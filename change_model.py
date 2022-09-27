@@ -5,6 +5,7 @@ import glob
 from logfunction import LogsFunction
 import numpy as np
 import json
+import json
 
 
 def run(json_read):
@@ -17,6 +18,7 @@ def run(json_read):
     connections = pd.read_csv("./model/graph_model/" + "connections.csv", index_col=[0])
     nodes = pd.read_csv("./model/graph_model/" + "nodes.csv", index_col=[0])
     start = pd.read_csv("./model/graph_model/" + "start.csv", index_col=[0])
+    end = pd.read_csv("./model/graph_model/" + "end.csv", index_col=[0])
 
     # new_json = []
     # for i in range(len(json_read)):
@@ -24,11 +26,13 @@ def run(json_read):
     #         new_json.append(json_read[i])
 
     # make standard logs (for example p-get-a)
+    f = open("config.json")
+    config = json.load(f)
     pure_logs, transaction_ids, datetime = LogsFunction().purifylogs(json_read)
     # extract flows
     logs_flows, datetime, tx = LogsFunction().extractFlows(pure_logs, transaction_ids, datetime)
     # sort logs
-    sorted_log_flows = LogsFunction().sortlogs(logs_flows, datetime)
+    sorted_log_flows, sorted_datetime = LogsFunction().sortlogs(logs_flows, datetime)
 
     # detect anomalies
     anomaly_flag = 0
@@ -53,6 +57,11 @@ def run(json_read):
             start["0"][sorted_priority[0]] = 1
             anomaly_flag = 1
 
+        if end["0"][sorted_priority[len(sorted_priority) - 1]] == 0:
+            # repair anomaly
+            end["0"][sorted_priority[len(sorted_priority) - 1]] = 1
+            anomaly_flag = 1
+
         counter = np.zeros(len(sorted_priority) - 1)
         for k in range(len(sorted_priority) - 1):
             for m in range(connections.shape[1]):
@@ -72,11 +81,23 @@ def run(json_read):
                 anomaly_flag = 1
                 connections[f"{index_of_new_column}"] = new_column_list
 
+        difference_temp_time = np.zeros(len(sorted_log_flows[i]) - 1)
+
+        for m in range(len(difference_temp_time)):
+            difference_temp_time[m] = sorted_datetime[i][m + 1] - sorted_datetime[i][m]
+
+        if max(difference_temp_time) > config["threshold"]:
+            config["threshold"] = max(difference_temp_time)
+            with open('config.json', 'w') as f:
+                json.dump(config, f)
     df = pd.DataFrame(connections)
     filename = './model/graph_model/connections.csv'
     df.to_csv(filename)
     df = pd.DataFrame(start)
     filename = './model/graph_model/start.csv'
+    df.to_csv(filename)
+    df = pd.DataFrame(end)
+    filename = './model/graph_model/end.csv'
     df.to_csv(filename)
     return anomaly_flag
 
