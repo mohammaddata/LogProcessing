@@ -17,11 +17,14 @@ def run(fileName):
     connections = pd.read_csv("./model/graph_model/" + "connections.csv")
     nodes = pd.read_csv("./model/graph_model/" + "nodes.csv")
     start = pd.read_csv("./model/graph_model/" + "start.csv")
+    end = pd.read_csv("./model/graph_model/" + "end.csv")
 
     extension = fileName.split(".")[1]
     if extension == 'json':
         f = open(fileName)
         json_read = json.load(f)
+        f = open("config.json")
+        config = json.load(f)
         print("start processing ...")
         files = glob.glob('./anomalies/*')
         for f in files:
@@ -38,8 +41,7 @@ def run(fileName):
         # extract flows
         logs_flows, datetime, tx = LogsFunction().extractFlows(pure_logs, transaction_ids, datetime)
         # sort logs
-        sorted_log_flows = LogsFunction().sortlogs(logs_flows, datetime)
-
+        sorted_log_flows, sorted_datetime = LogsFunction().sortlogs(logs_flows, datetime)
 
         # detect anomalies
         count = np.zeros(len(sorted_log_flows), dtype=object)
@@ -47,6 +49,19 @@ def run(fileName):
         for i in range(len(sorted_log_flows)):
             count[i] = 0
             priority = []
+
+            if len(sorted_log_flows[i]) > 1:
+
+                difference_temp_time = np.zeros(len(sorted_log_flows[i]) - 1)
+
+                for m in range(len(difference_temp_time)):
+                    difference_temp_time[m] = sorted_datetime[i][m + 1] - sorted_datetime[i][m]
+
+                if max(difference_temp_time) > config["threshold"]:
+                    count[i] = 1
+                    temp_tx.append(tx[i][0])
+                    continue
+
             for u in range(len(sorted_log_flows[i])):
                 for j in range(len(nodes)):
                     if sorted_log_flows[i][u] == nodes["0"][j]:
@@ -57,6 +72,11 @@ def run(fileName):
                 sorted_priority.append(priority[len(priority) - 1 - b])
 
             if start["0"][sorted_priority[0]] == 0:
+                count[i] = 1
+                temp_tx.append(tx[i][0])
+                continue
+
+            if end["0"][sorted_priority[len(sorted_priority) - 1]] == 0:
                 count[i] = 1
                 temp_tx.append(tx[i][0])
                 continue
@@ -101,15 +121,15 @@ def run(fileName):
 
 print('Enter the filename:')
 filename = input()
-try:
-    extension = filename.split(".")[1]
-    if extension != "json":
-        print("not a json file")
-        exit(0)
+# try:
+extension = filename.split(".")[1]
+if extension != "json":
+    print("not a json file")
+    exit(0)
 
-    run(filename)
-except:
-    print(f"There is an error, please check the following items:\n")
-    print("1 - The file must be exist in this directory\n")
-    print("2- The input file must be a json file. please check the extension of the file and make sure that the data "
-          "structure of file is json.")
+run(filename)
+# except:
+#     print(f"There is an error, please check the following items:\n")
+#     print("1 - The file must be exist in this directory\n")
+#     print("2- The input file must be a json file. please check the extension of the file and make sure that the data "
+#           "structure of file is json.")
