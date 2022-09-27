@@ -55,13 +55,9 @@ def retrain(folder_flag, name):
             change_model_flag[counter] = run(jsonArray)
             counter += 1
 
-    # df = pd.DataFrame(change_model_flag)
-    # filename = 'model_status.csv'  # with tx
-    # df.to_csv(filename)
-    if sum(change_model_flag) > 0:
-        print("model changed!")
-    else:
-        print("nothing changed!")
+    df = pd.DataFrame(change_model_flag)
+    filename = 'model_status.csv'  # with tx
+    df.to_csv(filename)
 
 
 print('Enter the foldername(containing csv files)/filename(csv):')
