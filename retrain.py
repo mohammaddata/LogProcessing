@@ -9,6 +9,11 @@ import json
 
 
 def csv_to_json(csvFilePath):
+    """ convert csv to json
+
+        :param csvFilePath: the root of csv file.
+        :return jsonArray: json array of the input csv file.
+    """
     jsonArray = []
 
     # read csv file
@@ -31,8 +36,8 @@ def retrain(folder_flag, name):
         :return: nothing but save model status to file system. if model status is 1 model is changed.
     """
     print("start processing ...")
-    if folder_flag == 1:
-        files = glob.glob('./' + f"{name}" + "/*")  # test
+    if folder_flag == 1:  # if folder flag equals to 1, we have a folder.
+        files = glob.glob('./' + f"{name}" + "/*")  # reading files of the folder.
         change_model_flag = np.zeros(len(files))
         counter = 0
         for f in files:
@@ -40,11 +45,11 @@ def retrain(folder_flag, name):
                 print("not a csv file")
                 exit(0)
             else:
-                jsonArray = csv_to_json(f)  # test
-                change_model_flag[counter] = run(jsonArray)
+                jsonArray = csv_to_json(f)
+                change_model_flag[counter] = run(jsonArray)  # call change model
                 counter += 1
 
-    else:
+    else:  # we have aa csv file!
         counter = 0
         change_model_flag = np.zeros(1)
         if "csv" not in name:
@@ -56,7 +61,8 @@ def retrain(folder_flag, name):
             counter += 1
 
     df = pd.DataFrame(change_model_flag)
-    filename = 'model_status.csv'  # with tx
+    filename = 'model_status.csv'  # save a csv file which each row shows if the related csv file changes the model
+    # or not
     df.to_csv(filename)
 
 
@@ -76,6 +82,7 @@ credentials = {
     "userName": "neo4j",
     "password": "test"
 }
+# load model
 neo = Neo4jHandler(credentials)
 connections = np.array(pd.read_csv("./model/graph_model/" + "connections.csv", index_col=[0]))
 nodes = np.array(pd.read_csv("./model/graph_model/" + "nodes.csv", index_col=[0]))
@@ -84,6 +91,7 @@ end = np.array(pd.read_csv("./model/graph_model/" + "end.csv", index_col=[0]))
 flow_index = np.array(pd.read_csv("./model/graph_model/" + "flow_index.csv", index_col=[0]))
 unique_flow_index = []
 final_connection = []
+# extract flows based on the new model
 for i in range(len(connections)):
     unique_connection_i = np.unique(connections[i])
     unique_flow_index_i = []
@@ -107,6 +115,7 @@ for i in range(len(connections)):
 
 neo.clear_graph()
 count = 0
+# draw graph
 for i in range(len(nodes)):
     neo.create_new_node(str(nodes[i][0]).replace("-", "_"), str(start[i][0]), str(end[i][0]))
     count += 1
