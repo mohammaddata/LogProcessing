@@ -38,9 +38,9 @@ def run(fileName):
 
         # make standard logs (for example p-get-a)
         pure_logs, transaction_ids, datetime = LogsFunction().purifylogs(json_read)
-        # extract flows
+        # extract flows based on transaction Id
         logs_flows, datetime, tx = LogsFunction().extractFlows(pure_logs, transaction_ids, datetime)
-        # sort logs
+        # sort logs based on datetime
         sorted_log_flows, sorted_datetime = LogsFunction().sortlogs(logs_flows, datetime)
 
         # detect anomalies
@@ -49,7 +49,7 @@ def run(fileName):
         for i in range(len(sorted_log_flows)):
             count[i] = 0
             priority = []
-
+            # detect anomaly based on threshold
             if len(sorted_log_flows[i]) > 1:
 
                 difference_temp_time = np.zeros(len(sorted_log_flows[i]) - 1)
@@ -61,7 +61,7 @@ def run(fileName):
                     count[i] = 1
                     temp_tx.append(tx[i][0])
                     continue
-
+            # detect anomaly based on start node condition
             for u in range(len(sorted_log_flows[i])):
                 for j in range(len(nodes)):
                     if sorted_log_flows[i][u] == nodes["0"][j]:
@@ -71,6 +71,7 @@ def run(fileName):
             for b in range(len(priority)):
                 sorted_priority.append(priority[len(priority) - 1 - b])
 
+            # detect anomaly based on end node condition
             if start["0"][sorted_priority[0]] == 0:
                 count[i] = 1
                 temp_tx.append(tx[i][0])
@@ -81,6 +82,7 @@ def run(fileName):
                 temp_tx.append(tx[i][0])
                 continue
 
+            # detect anomaly based on flow condition
             counter = np.zeros(len(sorted_priority) - 1)
             for k in range(len(sorted_priority) - 1):
                 for m in range(connections.shape[1] - 1):
@@ -121,7 +123,6 @@ def run(fileName):
 
 print('Enter the filename:')
 filename = input()
-# try:
 extension = filename.split(".")[1]
 if extension != "json":
     print("not a json file")
