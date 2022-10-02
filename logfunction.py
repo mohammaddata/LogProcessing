@@ -15,6 +15,7 @@ class LogsFunction:
         transaction_ids = []
         datetime = []
         for i in range(len(json_read)):
+            # convert logs to standard format based on action (Head- Get - Put - Delete) in the logs
             if "HEAD" in json_read[i]["request_method"]:
                 try:
                     str1 = json_read[i]["user_agent"]
@@ -68,6 +69,7 @@ class LogsFunction:
             :param string: not standard keyword
             :return: standard keyword
         """
+        # convert keywords to standard form (abbreviation name of the server)
         if "proxy" in string:
             return "p"
         if "account" in string:
@@ -97,6 +99,7 @@ class LogsFunction:
         final_date_time = []
         final_tx = []
         unique_transaction_ids = np.unique(transaction_ids)
+        # extract flows based on the transaction id (transactions with equal transaction id are in one process)
         for i in range(len(unique_transaction_ids)):
             temp_logs = []
             temp_datetime = []
@@ -123,6 +126,7 @@ class LogsFunction:
         """
         his = [sorted_log_flows[0]]
         his_tx = [tx[0]]
+        # choose one representative from a cluster group.
         for i in range(len(sorted_log_flows)):
             found = 0
             for j in range(len(his)):
@@ -165,6 +169,7 @@ class LogsFunction:
             :param logs_flows: flow of logs
             :return: logs_flows: sorted flows of logs
         """
+        # sort logs based on the datetime field in ascending order.
         temp_date_time_sorted = np.empty(len(logs_flows), dtype=object)
         for i in range(len(logs_flows)):
             temp_logs_flows = copy.deepcopy(logs_flows[i])
@@ -206,6 +211,7 @@ class LogsFunction:
         nodes = np.array(nodes)
         start = np.empty(len(nodes), dtype=object)
         end = np.empty(len(nodes), dtype=object)
+        # extract main nodes of the graph
         for i in range(len(nodes)):
             flag_end = 0
             flag_start = 0
@@ -224,6 +230,7 @@ class LogsFunction:
 
         connections = []
         flow_index = []
+        # extract connections of the graph
         for i in range(len(nodes)):
             temp_connections = []
             temp_flow_index = []
