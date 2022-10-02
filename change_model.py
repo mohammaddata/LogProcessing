@@ -29,9 +29,9 @@ def run(json_read):
     f = open("config.json")
     config = json.load(f)
     pure_logs, transaction_ids, datetime = LogsFunction().purifylogs(json_read)
-    # extract flows
+    # extract flows based on transaction Id
     logs_flows, datetime, tx = LogsFunction().extractFlows(pure_logs, transaction_ids, datetime)
-    # sort logs
+    # sort logs based on datetime
     sorted_log_flows, sorted_datetime = LogsFunction().sortlogs(logs_flows, datetime)
 
     # detect anomalies
@@ -53,12 +53,12 @@ def run(json_read):
             sorted_priority.append(priority[len(priority) - 1 - b])
 
         if start["0"][sorted_priority[0]] == 0:
-            # repair anomaly
+            # repair anomaly (start condition repairing)
             start["0"][sorted_priority[0]] = 1
             anomaly_flag = 1
 
         if end["0"][sorted_priority[len(sorted_priority) - 1]] == 0:
-            # repair anomaly
+            # repair anomaly (end condition repairing)
             end["0"][sorted_priority[len(sorted_priority) - 1]] = 1
             anomaly_flag = 1
 
@@ -70,7 +70,7 @@ def run(json_read):
                 if int(connections[f"{m}"][priority[k]]) == int(priority[k + 1]):
                     if counter[k] != 1:
                         counter[k] = counter[k] + 1
-            # repair anomaly
+            # repair anomaly (flow repairing)
             if counter[k] == 0:
                 index_of_new_column = connections.shape[1]
                 new_column_list = np.zeros(connections.shape[0])
@@ -85,11 +85,12 @@ def run(json_read):
 
         for m in range(len(difference_temp_time)):
             difference_temp_time[m] = sorted_datetime[i][m + 1] - sorted_datetime[i][m]
-
+        # repair anomaly (threshold repairing)
         if max(difference_temp_time) > config["threshold"]:
             config["threshold"] = max(difference_temp_time)
             with open('config.json', 'w') as f:
                 json.dump(config, f)
+    # save repaired model
     df = pd.DataFrame(connections)
     filename = './model/graph_model/connections.csv'
     df.to_csv(filename)
