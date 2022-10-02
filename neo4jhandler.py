@@ -21,10 +21,11 @@ class Neo4jHandler:
             :param end: determining if a node if end
             :return: create_node: node format in create_node
         """
+        # extract useragent, method and programme
         useragent = node.split("_")[0]
         method = node.split("_")[1]
         programname = node.split("_")[2]
-
+        # find the name of the useragent based on its abbreviation
         if useragent == "p":
             useragent = "proxy_server"
         elif useragent == "a":
@@ -35,7 +36,7 @@ class Neo4jHandler:
             useragent = "container_server"
         else:
             useragent = "s"
-
+        # find the name of the programname based on its abbreviation
         if programname == "p":
             programname = "proxy_server"
         elif programname == "a":
@@ -47,6 +48,7 @@ class Neo4jHandler:
         else:
             programname = "s"
 
+        # create node and detect its type. we have four main types(start node, end node, mid node, both node)
         if (start == '1') and (end == '1'):
             create_node = \
                 "CREATE \n" + \
@@ -81,7 +83,7 @@ class Neo4jHandler:
             :param edge_name: determining if a node if end
             :return: create_edge: node create_edge in create_node
         """
-
+        # detect type of node1 based of start1 and end1 values.
         if (start1 == '1') and (end1 == '1'):
             name1 = 'both'
         if (start1 == '1') and (end1 == '0'):
@@ -100,6 +102,7 @@ class Neo4jHandler:
         if (start2 == '0') and (end2 == '0'):
             name2 = "mid"
 
+        # detect type of node2 based of start2 and end2 values.
         create_edge = \
             "MATCH (u: " + f"{name1}" + " {name:" + f"'{node_1}'" + "}), (r: " + f"{name2}" + "  {name: " + \
             f"'{node_2}'" + "}) " + \
