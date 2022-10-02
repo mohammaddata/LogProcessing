@@ -87,7 +87,7 @@ def run(json_read):
             difference_temp_time[m] = sorted_datetime[i][m + 1] - sorted_datetime[i][m]
         # repair anomaly (threshold repairing)
         if max(difference_temp_time) > config["threshold"]:
-            config["threshold"] = max(difference_temp_time)
+            config["threshold"] = round(max(difference_temp_time), 2)
             with open('config.json', 'w') as f:
                 json.dump(config, f)
     # save repaired model
