@@ -17,6 +17,7 @@ def run(fileName):
     """ train graph for anomalies, draw graph
         :param filename: name of the json file
     """
+    # neo4j configs
     credentials = {
         "uri": "bolt://localhost:7687",
         "userName": "neo4j",
@@ -64,9 +65,9 @@ def run(fileName):
         filename = './model/graph_model/flow_index.csv'
         df.to_csv(filename)
 
-        # draw graph
         unique_flow_index = []
         for i in range(len(connections)):
+            # extract connections
             unique_connection_i = np.unique(connections[i])
             unique_flow_index_i = []
             for k in range(len(unique_connection_i)):
@@ -82,6 +83,7 @@ def run(fileName):
 
         neo.clear_graph()
         count = 0
+        # draw graph
         for i in range(len(nodes)):
             neo.create_new_node(str(nodes[i]).replace("-", "_"), start[i], end[i])
             count += 1
